@@ -1,0 +1,24 @@
+mock_fs
+format
+yes
+mkdir test_dir
+echo 1 > temp_file
+echo 2 >> temp_file
+cat temp_file
+ls
+cd test_dir
+touch 1145141919810
+echo heng!heng!enaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa > 1145141919810
+cat 1145141919810
+date
+mkdir delete_this
+touch plz_also_delete_this
+ls
+rm delete_this plz_also_delete
+ls
+rm delete_this
+mkdir 893
+cat 893
+echo 2 > 893
+ls
+exit
