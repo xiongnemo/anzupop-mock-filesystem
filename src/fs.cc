@@ -139,6 +139,17 @@ void MarshmallowFS::FS::shell()
                 cout << "cd:  unrecognized count of arguments." << endl;
             }
         }
+        else if (operation == "find")
+        {
+            if (argument_count == 2)
+            {
+                last_operation_result = find(operations[1]);
+            }
+            else
+            {
+                cout << "find:  unrecognized count of arguments." << endl;
+            }
+        }
         else if (operation == "info")
         {
             info();
@@ -561,7 +572,7 @@ bool MarshmallowFS::FS::write(string buffer, string file_name, bool is_append)
     string file_name_to_use = Misc::cut_string_to_length(file_name, ITEM_NAME_SIZE - 1, "write", "file_name");
 
     GenericBlock *current_block = find_(file_name_to_use);
-    
+
     if (current_block != NULL)
     {
         string temp_name = (const char *)current_block->name;
@@ -724,6 +735,18 @@ MarshmallowFS::GenericBlock *MarshmallowFS::FS::find_(string file_name)
         }
     }
     return NULL;
+}
+
+bool MarshmallowFS::FS::find(string item_name)
+{
+    string item_name_to_use = Misc::cut_string_to_length(item_name, ITEM_NAME_SIZE - 1, "rm", "item_name");
+    GenericBlock *current_block = find_(item_name_to_use);
+    if (current_block != NULL)
+    {
+        cout << item_name_to_use << endl;
+        return true;
+    }
+    return false;
 }
 
 uint32_t MarshmallowFS::FS::find_block_pos_(string file_name)
