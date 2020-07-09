@@ -142,6 +142,8 @@ namespace MarshmallowFS
         void info();
         // This function creates an empty file.
         void touch(string file_name);
+        // This function initialize a file.
+        void initialize_a_file(File* file_to_initialize, string file_name);
         // This function creates an empty directory.
         bool mkdir(string directory_name);
         // This function enters an directory.

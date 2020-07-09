@@ -438,14 +438,19 @@ void MarshmallowFS::FS::touch(string file_name)
     GenericBlock *current_block = get_raw_block_at_block_pos(block_pos_to_use);
     clean(current_block);
     File *current_file = get_file_at_block_pos(block_pos_to_use);
-    current_file->type = ItemType::general_file;
-    current_file->father_directory_node_block_index = current_block_pos_in_image;
-    current_file->data_block_end_sig = DATA_END_SIG;
-    current_file->size = 0;
-    int file_name_length = file_name_to_use.length();
+    initialize_a_file(current_file, file_name_to_use);
+}
+
+void MarshmallowFS::FS::initialize_a_file(File* file_to_initialize, string file_name)
+{
+    file_to_initialize->type = ItemType::general_file;
+    file_to_initialize->father_directory_node_block_index = current_block_pos_in_image;
+    file_to_initialize->data_block_end_sig = DATA_END_SIG;
+    file_to_initialize->size = 0;
+    int file_name_length = file_name.length();
     for (int i = 0; i < file_name_length; i++)
     {
-        current_file->name[i] = file_name_to_use[i];
+        file_to_initialize->name[i] = file_name[i];
     }
 }
 
