@@ -737,16 +737,40 @@ MarshmallowFS::GenericBlock *MarshmallowFS::FS::find_(string file_name)
     return NULL;
 }
 
+vector<pair<string, MarshmallowFS::ItemType>> MarshmallowFS::FS::find_with_substr_(string name_to_search)
+{
+    DirectoryNode *current_directory = get_current_directory();
+    int node_size = current_directory->child_node_count;
+    vector<pair<string, ItemType>> file_list;
+    for (int i = 0; i < node_size; i++)
+    {
+        if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
+        {
+            continue;
+        }
+        GenericBlock *current_block = get_raw_block_at_block_pos(current_directory->child_node_block_index[i]);
+        string temp_name = (const char *)current_block->name;
+        ItemType temp_type = static_cast<ItemType>(current_block->type);
+        if (temp_name.find(name_to_search) != temp_name.npos)
+            file_list.push_back(make_pair(temp_name, temp_type));
+    }
+    return file_list;
+}
+
 bool MarshmallowFS::FS::find(string item_name)
 {
     string item_name_to_use = Misc::cut_string_to_length(item_name, ITEM_NAME_SIZE - 1, "rm", "item_name");
-    GenericBlock *current_block = find_(item_name_to_use);
-    if (current_block != NULL)
+    vector<pair<string, ItemType>> file_list = find_with_substr_(item_name_to_use);
+    if (file_list.size() == 0)
     {
-        cout << item_name_to_use << endl;
-        return true;
+        return false;
     }
-    return false;
+    for (vector<pair<string, ItemType>>::iterator item = file_list.begin(); item != file_list.end(); item++)
+    {
+        print_item_with_color((*item).first, (*item).second);
+        cout << "\n";
+    }
+    return true;
 }
 
 uint32_t MarshmallowFS::FS::find_block_pos_(string file_name)

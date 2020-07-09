@@ -158,6 +158,8 @@ namespace MarshmallowFS
         void help();
         // This function returns a GenericBlock with given name to search, returns NULL on error.
         GenericBlock *find_(string file_name);
+        // This function returns a lists of file name and type as the result's substring to search, returns NULL on error.
+        vector<pair<string, ItemType>> find_with_substr_(string file_name);
         // This function find a file or directory under current directory. Prints name on success, returns an error if not found.
         bool find(string item_name);
         // This function returns block_pos with given name to search, returns 1919810 on error.
