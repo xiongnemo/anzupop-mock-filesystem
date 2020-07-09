@@ -416,7 +416,7 @@ const char *MarshmallowFS::FS::pwd_()
 void MarshmallowFS::FS::touch(string file_name)
 {
     DirectoryNode *current_directory = get_current_directory();
-    string file_name_to_use = Misc::cut_string_to_length(file_name_to_use, ITEM_NAME_SIZE - 1, "touch", "file_name_to_use");
+    string file_name_to_use = Misc::cut_string_to_length(file_name, ITEM_NAME_SIZE - 1, "touch", "file_name");
     if (check_duplicate_item(file_name_to_use))
     {
         string message = "File ‘" + file_name_to_use + "’ exists.";
@@ -650,6 +650,8 @@ bool MarshmallowFS::FS::cat(string file_name)
             }
         }
     }
+    string message = file_name_to_use + ": No such file or directory";
+    Logging::error("cat", message.c_str());
     return false;
 }
 
