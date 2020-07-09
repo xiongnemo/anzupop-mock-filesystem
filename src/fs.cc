@@ -416,16 +416,7 @@ const char *MarshmallowFS::FS::pwd_()
 void MarshmallowFS::FS::touch(string file_name)
 {
     DirectoryNode *current_directory = get_current_directory();
-    string file_name_to_use;
-    if (file_name.length() > 15)
-    {
-        file_name_to_use = file_name.substr(0, 15);
-        Logging::warning("touch", "The length of file_name is larger than 15. Cut off.");
-    }
-    else
-    {
-        file_name_to_use = file_name;
-    }
+    string file_name_to_use = Misc::cut_string_to_length(file_name_to_use, ITEM_NAME_SIZE - 1, "touch", "file_name_to_use");
     if (check_duplicate_item(file_name_to_use))
     {
         string message = "File ‘" + file_name_to_use + "’ exists.";
@@ -461,16 +452,7 @@ void MarshmallowFS::FS::touch(string file_name)
 bool MarshmallowFS::FS::mkdir(string directory_name)
 {
     DirectoryNode *current_directory = get_current_directory();
-    string directory_name_to_use;
-    if (directory_name.length() > 15)
-    {
-        directory_name_to_use = directory_name.substr(0, 15);
-        Logging::warning("touch", "The length of file_name is larger than 15. Cut off.");
-    }
-    else
-    {
-        directory_name_to_use = directory_name;
-    }
+    string directory_name_to_use = Misc::cut_string_to_length(directory_name, ITEM_NAME_SIZE - 1, "mkdir", "directory_name");
     if (check_duplicate_item(directory_name_to_use))
     {
         cout << "mkdir: cannot create directory ‘" << directory_name_to_use << "’: File exists" << endl;
@@ -517,16 +499,7 @@ bool MarshmallowFS::FS::cd(string directory_name)
     {
         return true;
     }
-    string directory_name_to_use;
-    if (directory_name.length() > 15)
-    {
-        directory_name_to_use = directory_name.substr(0, 15);
-        Logging::warning("cd", "The length of directory_name is larger than 15. Cut off.");
-    }
-    else
-    {
-        directory_name_to_use = directory_name;
-    }
+    string directory_name_to_use = Misc::cut_string_to_length(directory_name, ITEM_NAME_SIZE - 1, "cd", "directory_name");
     int node_size = current_directory->child_node_count;
     for (int i = 0; i < node_size; i++)
     {
@@ -557,16 +530,7 @@ bool MarshmallowFS::FS::cd(string directory_name)
 bool MarshmallowFS::FS::rm(string item_name)
 {
     DirectoryNode *current_directory = get_current_directory();
-    string item_name_to_use;
-    if (item_name.length() > 15)
-    {
-        item_name_to_use = item_name.substr(0, 15);
-        Logging::warning("rm", "The length of directory_name is larger than 15. Cut off.");
-    }
-    else
-    {
-        item_name_to_use = item_name;
-    }
+    string item_name_to_use = Misc::cut_string_to_length(item_name, ITEM_NAME_SIZE - 1, "rm", "item_name");
     int node_size = current_directory->child_node_count;
     for (int i = 0; i < node_size; i++)
     {
@@ -591,29 +555,11 @@ bool MarshmallowFS::FS::write(string buffer, string file_name, bool is_append)
 {
     DirectoryNode *current_directory = get_current_directory();
     touch(file_name);
-    string file_content_to_write;
-    string file_name_to_use;
-    if (file_name.length() > 15)
-    {
-        file_name_to_use = file_name.substr(0, 15);
-        Logging::warning("write", "The length of file_name is larger than 15. Cut off.");
-    }
-    else
-    {
-        file_name_to_use = file_name;
-    }
-    if (buffer.length() > 4060)
-    {
-        file_content_to_write = buffer.substr(0, 4060);
-        Logging::warning("write", "The length of contents to write is larger than 4060, which is currently unsupported. Cut off.");
-    }
-    else
-    {
-        file_content_to_write = buffer;
-    }
+
+    string file_content_to_write = Misc::cut_string_to_length(buffer, 4060, "write", "contents to write");
+    string file_name_to_use = Misc::cut_string_to_length(file_name, ITEM_NAME_SIZE - 1, "write", "file_name");
 
     int node_size = current_directory->child_node_count;
-
     for (int i = 0; i < node_size; i++)
     {
         if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
@@ -662,16 +608,7 @@ bool MarshmallowFS::FS::write(string buffer, string file_name, bool is_append)
 bool MarshmallowFS::FS::cat(string file_name)
 {
     DirectoryNode *current_directory = get_current_directory();
-    string file_name_to_use;
-    if (file_name.length() > 15)
-    {
-        file_name_to_use = file_name.substr(0, 15);
-        Logging::warning("cat", "The length of file_name is larger than 15. Cut off.");
-    }
-    else
-    {
-        file_name_to_use = file_name;
-    }
+    string file_name_to_use = Misc::cut_string_to_length(file_name, ITEM_NAME_SIZE - 1, "cat", "file_name");
     int node_size = current_directory->child_node_count;
 
     for (int i = 0; i < node_size; i++)

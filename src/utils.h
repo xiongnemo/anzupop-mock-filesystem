@@ -13,6 +13,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::time_t;
+using std::to_string;
 using namespace std::chrono;
 
 #define CSI "\x1B["                // Control Sequence Introducer (ANSI spec name)
@@ -125,8 +126,8 @@ namespace Utils
     {
         class Gti
         {
-            public:
-                int gti(int argc, char **argv);
+        public:
+            int gti(int argc, char **argv);
         };
         char *remove_last_char(char *char_array);
         char *get_current_time();
@@ -139,6 +140,7 @@ namespace Utils
         void clear_screen();
         void print_what();
         void print_logo();
+        string cut_string_to_length(string source, unsigned int length, const char *caller_name, const char *source_string_name);
     }; // namespace Misc
 
 } // namespace Utils

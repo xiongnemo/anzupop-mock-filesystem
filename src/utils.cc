@@ -123,3 +123,23 @@ void Utils::Misc::print_what()
             "        \\::/    /                                     \\:|   |                  \\::/    /        \n"
             "         \\/____/                                       \\|___|                   \\/____/         \n";
 }
+
+string Utils::Misc::cut_string_to_length(string source, unsigned int length, const char *caller_name, const char *source_string_name)
+{
+    string result;
+    if (source.length() > length)
+    {
+        result = source.substr(0, length);
+        string message = "The length of ";
+        message += source_string_name;
+        message += " is larger than ";
+        message += to_string(length);
+        message += ". Cut off.";
+        Logging::warning(caller_name, message.c_str());
+    }
+    else
+    {
+        result = source;
+    }
+    return result;
+}
