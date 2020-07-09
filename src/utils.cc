@@ -130,11 +130,7 @@ string Utils::Misc::cut_string_to_length(string source, unsigned int length, con
     if (source.length() > length)
     {
         result = source.substr(0, length);
-        string message = "The length of ";
-        message += source_string_name;
-        message += " is larger than ";
-        message += to_string(length);
-        message += ". Cut off.";
+        string message = "The length of " + string(source_string_name) + " is larger than " + to_string(length) + ". Cut off.";
         Logging::warning(caller_name, message.c_str());
     }
     else

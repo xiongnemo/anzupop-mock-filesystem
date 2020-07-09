@@ -143,7 +143,7 @@ namespace MarshmallowFS
         // This function creates an empty file.
         void touch(string file_name);
         // This function initialize a file.
-        void initialize_a_file(File* file_to_initialize, string file_name);
+        void initialize_a_file(File *file_to_initialize, string file_name);
         // This function creates an empty directory.
         bool mkdir(string directory_name);
         // This function enters an directory.
@@ -157,6 +157,10 @@ namespace MarshmallowFS
         bool cat(string file_name);
         // This function prints help.
         void help();
+        // This function returns a GenericBlock with given name to search, returns NULL on error.
+        GenericBlock *find_(string file_name);
+        // This function returns block_pos with given name to search, returns 1919810 on error.
+        uint32_t find_block_pos_(string file_name);
         // This function cleans a block.
         void clean(GenericBlock *block);
         // return the pointer to current directory where current_block_pos_in_image is

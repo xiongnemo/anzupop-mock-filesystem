@@ -441,7 +441,7 @@ void MarshmallowFS::FS::touch(string file_name)
     initialize_a_file(current_file, file_name_to_use);
 }
 
-void MarshmallowFS::FS::initialize_a_file(File* file_to_initialize, string file_name)
+void MarshmallowFS::FS::initialize_a_file(File *file_to_initialize, string file_name)
 {
     file_to_initialize->type = ItemType::general_file;
     file_to_initialize->father_directory_node_block_index = current_block_pos_in_image;
@@ -492,6 +492,7 @@ bool MarshmallowFS::FS::mkdir(string directory_name)
 bool MarshmallowFS::FS::cd(string directory_name)
 {
     DirectoryNode *current_directory = get_current_directory();
+
     if (directory_name == "../" || directory_name == "..")
     {
         if (current_directory->type != ItemType::root_directory)
@@ -504,31 +505,27 @@ bool MarshmallowFS::FS::cd(string directory_name)
     {
         return true;
     }
+
     string directory_name_to_use = Misc::cut_string_to_length(directory_name, ITEM_NAME_SIZE - 1, "cd", "directory_name");
-    int node_size = current_directory->child_node_count;
-    for (int i = 0; i < node_size; i++)
+    uint32_t target_directory_block_pos = find_block_pos_(directory_name_to_use);
+    if (target_directory_block_pos != 1919810)
     {
-        if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
+        GenericBlock *current_block = get_raw_block_at_block_pos(target_directory_block_pos);
+        if ((current_block->type != ItemType::normal_directory) && (current_block->type != ItemType::root_directory))
         {
-            continue;
+            cout << "cd: not a directory: " << directory_name_to_use << endl;
+            return false;
         }
-        GenericBlock *current_block = get_raw_block_at_block_pos(current_directory->child_node_block_index[i]);
-        string temp_name = (const char *)current_block->name;
-        if (temp_name == directory_name_to_use)
-        {
-            if ((current_block->type != ItemType::normal_directory) && (current_block->type != ItemType::root_directory))
-            {
-                cout << "cd: not a directory: " << directory_name_to_use << endl;
-                return false;
-            }
-            current_block_pos_in_image = current_directory->child_node_block_index[i];
+        current_block_pos_in_image = target_directory_block_pos;
 #ifdef DEBUG
-            cout << "[DEBUG] cd: entered directory " << directory_name_to_use << " with block position " << current_block_pos_in_image << "(" << current_block_pos_in_image - 1 << ")" << endl;
+        cout << "[DEBUG] cd: entered directory " << directory_name_to_use << " with block position " << current_block_pos_in_image << "(" << current_block_pos_in_image - 1 << ")" << endl;
 #endif
-            return true;
-        }
+        return true;
     }
-    cout << "cd: no such file or directory: " << directory_name_to_use << endl;
+    else
+    {
+        cout << "cd: no such file or directory: " << directory_name_to_use << endl;
+    }
     return false;
 }
 
@@ -558,20 +555,15 @@ bool MarshmallowFS::FS::rm(string item_name)
 
 bool MarshmallowFS::FS::write(string buffer, string file_name, bool is_append)
 {
-    DirectoryNode *current_directory = get_current_directory();
     touch(file_name);
 
     string file_content_to_write = Misc::cut_string_to_length(buffer, 4060, "write", "contents to write");
     string file_name_to_use = Misc::cut_string_to_length(file_name, ITEM_NAME_SIZE - 1, "write", "file_name");
 
-    int node_size = current_directory->child_node_count;
-    for (int i = 0; i < node_size; i++)
+    GenericBlock *current_block = find_(file_name_to_use);
+    
+    if (current_block != NULL)
     {
-        if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
-        {
-            continue;
-        }
-        GenericBlock *current_block = get_raw_block_at_block_pos(current_directory->child_node_block_index[i]);
         string temp_name = (const char *)current_block->name;
         if (temp_name == file_name_to_use)
         {
@@ -607,51 +599,49 @@ bool MarshmallowFS::FS::write(string buffer, string file_name, bool is_append)
             }
         }
     }
+    else
+    {
+        string message = file_name_to_use + ": No such file or directory";
+        Logging::error("write", message.c_str());
+    }
     return false;
 }
 
 bool MarshmallowFS::FS::cat(string file_name)
 {
-    DirectoryNode *current_directory = get_current_directory();
+    // DirectoryNode *current_directory = get_current_directory();
     string file_name_to_use = Misc::cut_string_to_length(file_name, ITEM_NAME_SIZE - 1, "cat", "file_name");
-    int node_size = current_directory->child_node_count;
-
-    for (int i = 0; i < node_size; i++)
+    GenericBlock *current_block = find_(file_name_to_use);
+    if (current_block != NULL)
     {
-        if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
-        {
-            continue;
-        }
-        GenericBlock *current_block = get_raw_block_at_block_pos(current_directory->child_node_block_index[i]);
-        string temp_name = (const char *)current_block->name;
-        if (temp_name == file_name_to_use)
-        {
-            // these two make compiler happy
-            uint16_t current_file_size;
-            File *current_file;
+        //these two make compiler happy
+        uint16_t current_file_size;
+        File *current_file;
 
-            switch (current_block->type)
+        switch (current_block->type)
+        {
+        case ItemType::normal_directory:
+            Logging::error("cat", "Target is a directory. Stop.");
+            return false;
+        case ItemType::general_file:
+            current_file = (File *)current_block;
+            current_file_size = current_file->size;
+            for (int current_file_pos = 0; current_file_pos < current_file_size; current_file_pos++)
             {
-            case ItemType::normal_directory:
-                Logging::error("cat", "Target is a directory. Stop.");
-                return false;
-            case ItemType::general_file:
-                current_file = (File *)current_block;
-                current_file_size = current_file->size;
-                for (int current_file_pos = 0; current_file_pos < current_file_size; current_file_pos++)
-                {
-                    printf("%c", current_file->data[current_file_pos]);
-                }
-                cout << endl;
-                return true;
-            default:
-                Logging::error("cat", "Unknown type. Stop.");
-                return false;
+                printf("%c", current_file->data[current_file_pos]);
             }
+            cout << endl;
+            return true;
+        default:
+            Logging::error("cat", "Unknown type. Stop.");
+            return false;
         }
     }
-    string message = file_name_to_use + ": No such file or directory";
-    Logging::error("cat", message.c_str());
+    else
+    {
+        string message = file_name_to_use + ": No such file or directory";
+        Logging::error("cat", message.c_str());
+    }
     return false;
 }
 
@@ -714,6 +704,46 @@ void MarshmallowFS::FS::ls()
         cout << " ";
     }
     cout << '\n';
+}
+
+MarshmallowFS::GenericBlock *MarshmallowFS::FS::find_(string file_name)
+{
+    DirectoryNode *current_directory = get_current_directory();
+    int node_size = current_directory->child_node_count;
+    for (int i = 0; i < node_size; i++)
+    {
+        if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
+        {
+            continue;
+        }
+        GenericBlock *current_block = get_raw_block_at_block_pos(current_directory->child_node_block_index[i]);
+        string temp_name = (const char *)current_block->name;
+        if (temp_name == file_name)
+        {
+            return current_block;
+        }
+    }
+    return NULL;
+}
+
+uint32_t MarshmallowFS::FS::find_block_pos_(string file_name)
+{
+    DirectoryNode *current_directory = get_current_directory();
+    int node_size = current_directory->child_node_count;
+    for (int i = 0; i < node_size; i++)
+    {
+        if (current_directory->child_node_block_index[i] == DELETED_FILE_BLOCK_INDEX)
+        {
+            continue;
+        }
+        GenericBlock *current_block = get_raw_block_at_block_pos(current_directory->child_node_block_index[i]);
+        string temp_name = (const char *)current_block->name;
+        if (temp_name == file_name)
+        {
+            return current_directory->child_node_block_index[i];
+        }
+    }
+    return 1919810;
 }
 
 MarshmallowFS::DirectoryNode *MarshmallowFS::FS::get_current_directory()
