@@ -54,7 +54,7 @@ namespace MarshmallowFS
     struct File
     {
         ItemType type = ItemType::general_file;     // 4 bytes
-        unsigned char name[ITEM_NAME_SIZE];                     // 16 bytes
+        unsigned char name[ITEM_NAME_SIZE];         // 16 bytes
         uint16_t size;                              // 2 bytes
         uint32_t father_directory_node_block_index; // 4 bytes
         uint8_t data[4060];                         // data *supposed to be 4064, but sizeof() dont think so*
@@ -66,7 +66,7 @@ namespace MarshmallowFS
     struct FileData
     {
         ItemType type = ItemType::general_file_data_block; // 4 bytes
-        unsigned char name[ITEM_NAME_SIZE];                            // 16 bytes
+        unsigned char name[ITEM_NAME_SIZE];                // 16 bytes
         uint32_t father_file_node_block_index;             // 4 bytes
         uint8_t data[4066];                                // data
         uint16_t data_block_end_sig;                       // 2 bytes
@@ -77,7 +77,7 @@ namespace MarshmallowFS
     struct DirectoryNode
     {
         ItemType type = ItemType::normal_directory; // 4 bytes
-        unsigned char name[ITEM_NAME_SIZE];                     // 16 bytes
+        unsigned char name[ITEM_NAME_SIZE];         // 16 bytes
         uint16_t size;                              // 2 bytes, no use
         uint32_t father_directory_node_block_index; // 4 bytes
         uint16_t child_node_count;                  // 2 bytes
@@ -94,8 +94,8 @@ namespace MarshmallowFS
 
     struct SuperBlock // 4k
     {
-        unsigned char sig[ITEM_NAME_SIZE];                         // 16 bytes of signature, actually it's 13 bytes.
-        unsigned char label[ITEM_NAME_SIZE];                       // 16 bytes of disk label
+        unsigned char sig[ITEM_NAME_SIZE];             // 16 bytes of signature, actually it's 13 bytes.
+        unsigned char label[ITEM_NAME_SIZE];           // 16 bytes of disk label
         uint8_t block_allocation_table[2048];          // block allocation table
         uint8_t reserved_data[BLOCK_SIZE - 32 - 2048]; // to the end of first 4k block
     };
