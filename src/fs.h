@@ -7,8 +7,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-// where is istresmstring??
-#include <bits/stdc++.h>
+#include <sstream>
 #include "utils.h"
 
 #define IMAGE_SIZE 0x800000
