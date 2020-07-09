@@ -184,8 +184,8 @@ void MarshmallowFS::FS::shell()
         }
         else if (operation == "echo")
         {
-            // echo 1 > test.txt
-            // 0    1 2 3
+            // echo 1 2 3 > test.txt
+            // 0    1 2 3 4 5
             if (argument_count >= 4 && ((operations[argument_count - 2] == ">") || (operations[argument_count - 2] == ">>")))
             {
                 string buffer = "";
